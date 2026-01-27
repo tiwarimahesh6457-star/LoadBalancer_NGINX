@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+</head>
+<body>
+    <h1>Login Page</h1>
+    <form id="loginForm">
+        <div>
+            Email:
+            <input type="email" id="l-email" placeholder="Email" required />
+        </div>
+        <div>
+            Password:
+            <input type="password" id="l-password" placeholder="Password" required />
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <p id="msg"></p>
+
+   <!-- admin Section -->
+    <div id="admin-section" style="display:none">
+        <h2>All Users</h2>
+        <ul id="users"></ul>
+    </div>
+
+       <script>
+  const API = "http://localhost:4000/api";
+  const form = document.getElementById("loginForm");
+  const msg = document.getElementById("msg");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.innerText = "";
+
+    const email = document.getElementById("l-email").value.trim();
+    const password = document.getElementById("l-password").value.trim();
+
+    try {
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      msg.innerText = `${data.message} (Handled by ${data.server})`;
+
+      if (!res.ok) {
+        msg.style.color = "red";
+        msg.innerText = data.message || "Login failed";
+        return;
+      }
+
+      msg.style.color = "green";
+      msg.innerText = data.message;
+
+      setTimeout(() => {
+        window.location.href = "Dashboard.html";
+      }, 1500);
+
+    } catch (err) {
+      msg.style.color = "red";
+      msg.innerText = "Server not reachable";
+    }
+  });
+</script>
+
+</body>
+</html>

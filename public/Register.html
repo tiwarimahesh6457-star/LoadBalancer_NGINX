@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h1>Register Form</h1>
+    <form id="registerForm">
+        <div>
+            Name:
+            <input type="name" id="r-name" placeholder="UserName" minlength="4" `maxlength="20" required />
+        </div>
+        <div>
+            Email:
+            <input type="email" id="r-email" placeholder="Email" required />
+        </div>
+        <div>
+            Password:
+            <input type="password" id="r-password" placeholder="Password" minlength="6" maxlength="20" required />
+        </div>
+        <button type="submit">Register</button>
+        <p id="msg"></p>
+    </form>
+<script>
+    const API = "http://localhost:4000/api";
+    const form = document.getElementById("registerForm");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async(e) =>{
+        e.preventDefault();
+
+        const name = document.getElementById("r-name").value.trim();
+        const email = document.getElementById("r-email").value.trim();
+        const password = document.getElementById("r-password").value.trim();
+        msg.innerText = "";
+
+        try{
+            const res = await fetch(`${API}/auth/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({name, email, password})
+            })
+            const data = await res.json();
+            msg.innerText = `${data.message} (Handled by ${data.server})`;
+
+            if(!res.ok){
+                msg.style.color = "red";
+                msg.innerText = data.message || "Registration Failed";
+            }
+            
+            msg.style.color = "green";
+            msg.innerText = data.message || "Registration Successful";
+            msg.innerText = `${data.message} (Handled by ${data.server})`;
+            setTimeout(() => {
+                window.location.href = "Login.html";
+            }, 1500);
+
+        }catch(err){
+            msg.style.color = "red";
+            msg.innerText = "Server Error!"
+        };
+    });
+
+</script>
+    
+</body>
+</html>

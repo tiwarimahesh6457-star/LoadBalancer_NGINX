@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <h1 id="title"></h1>
+    <div id="admin-section" style="display: none">
+        <h3>
+            All-Users
+        </h3>
+        
+    </div>
+    <ul id="users"></ul>
+        <p id="msg"></p>
+    <button onclick="logout()">Logout</button>
+    <script>
+        const API = "http://localhost:4000/api";
+        const msg = document.getElementById("msg");
+
+        (async function initDashboard() {
+            //try admin first
+            try {
+                let res = await fetch(`${API}/admin/dashboard`, {
+                    credentials: "include"
+                })
+                console.log("ADMIN STATUS:", res.status);
+                if (res.ok) {
+                    
+                    document.getElementById("title").innerText = "Admin Dashboard";
+                    document.getElementById("title").style.color = "green";
+                    document.getElementById("admin-section").style.display = "block";
+
+                    const ul = document.getElementById("users");
+                    msg.innerHTML = "";
+
+                    const data = await res.json();
+                    const users = data.users;
+                    document.getElementById("msg").innerText = `${data.message} (handled by ${data.server})`;
+                    users.forEach((u) => {
+                        const li = document.createElement("li");
+                        li.innerText = `${u.name} ${u.email} - ${u.role}`;
+                        ul.appendChild(li);
+                    });
+                    return;
+                }
+                //try user
+                res = await fetch(`${API}/users/dashboard`, {
+                    credentials: "include"
+                })
+                
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const users = data.users;
+                    document.getElementById("title").innerText = "User Dashboard";
+                    document.getElementById("msg").innerText = "Welcome User!";
+                    document.getElementById("msg").innerText = `${data.message} (handled by ${data.server})`;
+                    return;
+                }
+                //not logged in
+                window.location.href = "login.html";
+            }
+            catch (err) {
+                document.getElementById("msg").innerText =
+                    "Something went wrong. Please try again later.";
+                console.error("DASHBOARD ERROR:", err);
+            }
+        })();
+
+        async function logout() {
+            await fetch(`${API}/logout`, {
+                method: "POST",
+                credentials: "include"
+            });
+            msg.innerText = "Logout successfully";
+            msg.style.color = "green";
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>
